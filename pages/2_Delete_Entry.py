@@ -4,7 +4,7 @@ import psycopg2
 st.set_page_config(page_title="Delete Food Entry", page_icon="🗑️")
 
 def get_connection():
-    return psycopg2.connect(st.secrets["DB_URL1"])
+    return psycopg2.connect(st.secrets["URL_DB1"])
 
 st.title("🗑️ Delete a Food Entry")
 
@@ -14,7 +14,7 @@ try:
 
     cur.execute("""
         SELECT id, date, location, item, quantity
-        FROM food_entries_master
+        FROM "food_entries_master_cleaned (2)"
         ORDER BY date ASC, id ASC;
     """)
     rows = cur.fetchall()
@@ -35,7 +35,7 @@ try:
         if st.button("Delete Entry"):
             if confirm:
                 try:
-                    cur.execute("DELETE FROM food_entries_master WHERE id = %s;", (selected_id,))
+                    cur.execute('DELETE FROM "food_entries_master_cleaned (2)" WHERE id = %s;', (selected_id,))
                     conn.commit()
                     st.success(f"✅ Entry ID {selected_id} deleted successfully.")
                 except Exception as e:
