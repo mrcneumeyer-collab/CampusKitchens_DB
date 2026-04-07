@@ -1,34 +1,39 @@
 import streamlit as st
 import psycopg2
+import pandas as pd
 
-st.set_page_config(page_title="Food Entry Database App", page_icon="🍽️")
+st.set_page_config(page_title="Food Entry Database App", page_icon="🍽️", layout="wide")
 
 def get_connection():
-    return psycopg2.connect(st.secrets["DB_URL1"])
+    return psycopg2.connect(st.secrets["DB_URL"])
 
 st.title("🍽️ Food Entry Database App")
-st.write("Welcome! Use the sidebar to navigate between pages.")
+st.write("Welcome! Use the sidebar to view, add, edit, or delete food entries.")
 
 st.markdown("---")
-st.subheader("📊 Current Data")
+st.subheader("📊 Current Data Summary")
 
 try:
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("SELECT COUNT(*) FROM food_entries_master;")
-    entry_count = cur.fetchone()[0]
+    total_entries = cur.fetchone()[0]
 
     cur.execute("SELECT COUNT(DISTINCT location) FROM food_entries_master;")
-    location_count = cur.fetchone()[0]
+    total_locations = cur.fetchone()[0]
 
     cur.execute("SELECT COUNT(DISTINCT item) FROM food_entries_master;")
-    item_count = cur.fetchone()[0]
+    total_items = cur.fetchone()[0]
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Entries", entry_count)
-    col2.metric("Locations", location_count)
-    col3.metric("Items", item_count)
+    cur.execute("SELECT COALESCE(SUM(CAST(quantity AS NUMERIC)), 0) FROM food_entries_master;")
+    total_quantity = cur.fetchone()[0]
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Entries", total_entries)
+    col2.metric("Locations", total_locations)
+    col3.metric("Items", total_items)
+    col4.metric("Total Quantity", total_quantity)
 
     st.markdown("---")
     st.subheader("📋 All Food Entries")
@@ -36,26 +41,16 @@ try:
     cur.execute("""
         SELECT id, date, location, item, quantity
         FROM food_entries_master
-        ORDER BY id ASC;
+        ORDER BY date ASC, id ASC;
     """)
     rows = cur.fetchall()
 
     if rows:
-        st.dataframe(
-            [
-                {
-                    "ID": r[0],
-                    "Date": r[1],
-                    "Location": r[2],
-                    "Item": r[3],
-                    "Quantity": r[4]
-                }
-                for r in rows
-            ],
-            use_container_width=True
-        )
+        df = pd.DataFrame(rows, columns=["ID", "Date", "Location", "Item", "Quantity"])
+        df["Date"] = df["Date"].astype(str)
+        st.dataframe(df, use_container_width=True)
     else:
-        st.info("No food entries found yet.")
+        st.info("No food entries found.")
 
     cur.close()
     conn.close()
