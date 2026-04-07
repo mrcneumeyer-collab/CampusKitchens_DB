@@ -4,7 +4,7 @@ import psycopg2
 st.set_page_config(page_title="Delete Food Entry", page_icon="🗑️")
 
 def get_connection():
-    return psycopg2.connect(st.secrets["DB_URL"])
+    return psycopg2.connect(st.secrets["DB_URL1"])
 
 st.title("🗑️ Delete a Food Entry")
 
