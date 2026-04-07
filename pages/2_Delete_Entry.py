@@ -4,7 +4,7 @@ import psycopg2
 st.set_page_config(page_title="Delete Food Entry", page_icon="🗑️")
 
 def get_connection():
-    return psycopg2.connect(st.secrets["DB_URL1"])
+    return psycopg2.connect(st.secrets["DB_URL"])
 
 st.title("🗑️ Delete a Food Entry")
 
@@ -15,7 +15,7 @@ try:
     cur.execute("""
         SELECT id, date, location, item, quantity
         FROM food_entries_master
-        ORDER BY id ASC;
+        ORDER BY date ASC, id ASC;
     """)
     rows = cur.fetchall()
 
