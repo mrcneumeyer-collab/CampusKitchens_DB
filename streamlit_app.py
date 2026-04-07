@@ -4,7 +4,7 @@ import psycopg2
 st.set_page_config(page_title="Food Entry Database App", page_icon="🍽️")
 
 def get_connection():
-    return psycopg2.connect(st.secrets["DB_URL"])
+    return psycopg2.connect(st.secrets["DB_URL1"])
 
 st.title("🍽️ Food Entry Database App")
 st.write("Welcome! Use the sidebar to navigate between pages.")
