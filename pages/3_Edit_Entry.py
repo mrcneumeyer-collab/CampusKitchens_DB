@@ -15,7 +15,7 @@ try:
 
     cur.execute("""
         SELECT id, date, location, item, quantity
-        FROM food_entries_master
+        FROM "food_entries_master_cleaned (2)"
         ORDER BY date ASC, id ASC;
     """)
     rows = cur.fetchall()
